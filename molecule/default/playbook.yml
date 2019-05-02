@@ -9,4 +9,5 @@
       when: ansible_os_family == 'Debian'
 
   roles:
-    - role: geerlingguy.docker
+    - role: ansible-role-docker
+      docker_link_dir: /depot/docker
