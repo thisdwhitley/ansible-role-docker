@@ -38,16 +38,16 @@
     - name: make a copy of the downloaded repo to point to prior OS version
       copy:
         src: '/etc/yum.repos.d/docker-{{ docker_edition }}.repo'
-        dest: '/etc/yum.repos.d/docker-{{ docker_edition }}-{{ PRIOR }}.repo'
+        dest: '/etc/yum.repos.d/docker-{{ docker_edition }}-f{{ PRIOR }}.repo'
         remote_src: true
     - name: update the PRIOR repo file
       replace:
-          path: '/etc/yum.repos.d/docker-{{ docker_edition }}-{{ PRIOR }}.repo'
+          path: '/etc/yum.repos.d/docker-{{ docker_edition }}-f{{ PRIOR }}.repo'
           regexp: '{{ item.regex }}'
           replace: '{{ item.replace }}'
       with_items:
-          - { regex: ']', replace: '-{{ PRIOR }}]' }
-          - { regex: '(name=.*)$', replace: '\1 - {{ PRIOR }}' }
+          - { regex: ']', replace: '-f{{ PRIOR }}]' }
+          - { regex: '(name=.*)$', replace: '\1 - f{{ PRIOR }}' }
           - { regex: '\$releasever', replace: '{{ PRIOR }}' }
     - name: disable the stable repo for {{ ansible_distribution_major_version }}
       ini_file:
