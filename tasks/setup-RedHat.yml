@@ -20,6 +20,44 @@
     group: root
     mode: 0644
 
+################################################################################
+## when fedora is released, the repo is not immediately available for "stable"
+## packages.  but I still want to install docker, and the packages are the same
+## in the prior release stable repo.  so I will set up another "temporary" repo
+## using the prior Fedora release number to install docker...
+- name: scrape download.docker.com for my OS version
+    uri:
+    url: https://download.docker.com/linux/{{ (ansible_distribution == "Fedora") | ternary("fedora","centos") }}/{{ ansible_distribution_major_version }}
+    return_content: true
+    register: results
+- name: if "stable" is not found make a secondary repo to install from
+  block:
+    - name: make a copy of the downloaded repo to point to prior OS version
+      copy:
+        src: '/etc/yum.repos.d/docker-{{ docker_edition }}.repo'
+        dest: '/etc/yum.repos.d/docker-{{ docker_edition }}-PRIOR.repo'
+        remote_src: true
+    - name: set a variable name for use in the next tasks
+      set_fact:
+        PRIOR: "{{ ansible_distribution_major_version -1 }}"
+    - name: update the PRIOR repo file
+      replace:
+          path: '/etc/yum.repos.d/docker-{{ docker_edition }}-PRIOR.repo'
+          regexp: '{{ item.regex }}'
+          replace: '{{ item.replace }}'
+      with_items:
+          - { regex: ']', replace: '-PRIOR]' }
+          - { regex: '(name=.*)$', replace: '\1 - PRIOR' }
+          - { regex: '\$releasever', replace: '{{ PRIOR }}' }
+    - name: disable the stable repo for {{ ansible_distribution_major_version }}
+        ini_file:
+          dest: '/etc/yum.repos.d/docker-{{ docker_edition }}.repo'
+          section: 'docker-{{ docker_edition }}-stable'
+          option: enabled
+          value: 0
+  when: results.content is not search("stable")
+################################################################################
+
 - name: Configure Docker Edge repo.
   ini_file:
     dest: '/etc/yum.repos.d/docker-{{ docker_edition }}.repo'
