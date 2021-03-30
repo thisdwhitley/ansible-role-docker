@@ -1,3 +1,9 @@
+# ARCHIVED!
+
+**I am archiving this repository (2021-03-30) because it is no longer needed.  This was always just a fork of Jeff Geeling's with some stuff I added in, but I use podman almost exclusively now.  I haven't had a need to install Docker for quite a few builds now.**
+
+---
+
 # Ansible Role: Docker
 
 [![Build Status](https://travis-ci.org/geerlingguy/ansible-role-docker.svg?branch=master)](https://travis-ci.org/geerlingguy/ansible-role-docker)
